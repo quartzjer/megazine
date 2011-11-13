@@ -303,6 +303,38 @@ HackerNews.prototype = common.mergeSettings(newsFunctions, {
 
 });
 
+var Locker = exports.Locker = function Locker() {}
+Locker.prototype = common.mergeSettings(newsFunctions, {
+  _super: newsFunctions,
+  type: 'locker',
+
+  reset: function() {
+    this.columns = [[],[],[],[]];
+    this._super.reset.call(this);
+  },
+
+  loadNewItems: function() {
+    var date = new Date();
+    this.about = "My Links";
+    var links = http.json('/Me/links/', {query: {full:true}});
+    links.forEach(function(link){link.id = link.link});
+    return links;
+  },
+
+  processItem: function(item) {
+    logging.debug("processing item: ",null, item);
+	if(item.link.indexOf("https://foursquare.com/") == 0) return; // they're just clutter here
+    this.processArticle({
+      id: item.id,
+      url: item.link,
+      user: item.encounters[0].from,
+      text: item.title,
+      pointerURL: item.link
+    });
+  },
+
+});
+
 var RSS = exports.RSS = function RSS(route) {
   var url = this.url = decodeURIComponent(route.current.params.feed);
   this.type = 'rss:' + url;
