@@ -86,8 +86,8 @@ try {
 	  <a class="tab twitter active_{{news.type == 'locker'}}" href="#/locker">all</a>
       <span ng:repeat="feed in feeds">
         <!-- TODO: fix double-encoding requirement -->
-        <span class="tab rss active_{{route.current.params.feed == (feed.url | escapeURI)}}">
-          <a ng:href="#/rss/{{feed.url | escapeURI | escapeURI}}">{{feed.name}}<a ng:click="removeFeed(feed)" class="delete">x</a></a>
+        <span class="tab rss active_{{route.current.params.feed == (feed.key | escapeURI)}}">
+          <a ng:href="#/rss/{{feed.key | escapeURI | escapeURI}}">{{feed.name}}<a ng:click="removeFeed(feed)" class="delete">x</a></a>
         </span>
       </span>
       <a class="tab rss active_{{news.type == 'add-rss'}}" href="#/rss/new"><strong>+</strong></a>

@@ -356,7 +356,7 @@ RSS.prototype = common.mergeSettings(newsFunctions, {
   loadNewItems: function() {
     var date = new Date();
     this.about = "My Links";
-    var links = http.json('/Me/links/search', {query: {q:this.url}});
+    var links = http.json('/Me/links/search', {query: {q:this.url, limit:20}});
     links.forEach(function(link){link.id = link.link});
     return links;
   },

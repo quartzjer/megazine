@@ -16,7 +16,7 @@ var App = exports.App = function App(route) {
   this.feedStore = new Cache("rss_feeds");
   route.when('/locker', {controller: NewsSources.Locker, template: "templates/basic-news.html"});
   route.when('/rss/new', {controller: RssAdder(this), template: "templates/add-rss.html"});
-  route.when('/rss/:feed', {controller: NewsSources.Locker, template: "templates/basic-news.html"});
+  route.when('/rss/:feed', {controller: NewsSources.RSS, template: "templates/basic-news.html"});
   spawn(this.run(route));
 };
 App.$inject=['$route'];
