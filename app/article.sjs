@@ -34,6 +34,8 @@ var Article = exports.Article = function(props) {
     summary: prop('content', null)
   };
 
+  this.contextImage = prop('img', null);
+
   if(underscore.keys(props).length > 0) {
     throw new Error("unknown properties: " + underscore.keys(props).join(", "));
   }
@@ -51,8 +53,9 @@ Article.prototype.userList = function() { return this.users.join(", "); };
 
 Article.prototype.loadContent = function() {
   logging.debug("Processing article: {url}", this);
-  this.heading = {};
+  this.heading = {text:this.contentOverrides.title};
 
+  if(this.contextImage && this.summary) return; // shortcut
   var contents = Content.getURLContents.rateLimited(this.url);
 
   if (!contents) {
@@ -65,7 +68,7 @@ Article.prototype.loadContent = function() {
   if(this.contentOverrides.title) contents.title = this.contentOverrides.title;
   
   this.contents = contents;
-  this.img = Content.extractImage(this.contents, this.url);
+  if(!this.contextImage) this.img = Content.extractImage(this.contents, this.url);
 
   if(this.img && this.img.imgService) {
     this.heading.image = this.img.src;

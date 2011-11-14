@@ -16,7 +16,7 @@ var App = exports.App = function App(route) {
   this.feedStore = new Cache("rss_feeds");
   route.when('/locker', {controller: NewsSources.Locker, template: "templates/basic-news.html"});
   route.when('/rss/new', {controller: RssAdder(this), template: "templates/add-rss.html"});
-  route.when('/rss/:feed', {controller: NewsSources.RSS, template: "templates/basic-news.html"});
+  route.when('/rss/:feed', {controller: NewsSources.Locker, template: "templates/basic-news.html"});
   spawn(this.run(route));
 };
 App.$inject=['$route'];
@@ -54,15 +54,15 @@ App.prototype.run = function() {
   };
 };
 
-App.prototype.addFeed = function(url, name) {
-  if((!url) || (!name)) {
-    throw new Error("Please enter both name and feed URL");
+App.prototype.addFeed = function(q) {
+  if((!q)) {
+    throw new Error("Please enter something");
   }
-  var feed = {key: url, url:url, name:name};
+  var feed = {key: q, name:q};
   this.feeds.push(feed);
   this.feedStore.save(feed);
   //TODO: fix double-encoding requirement
-  document.location.href = "#/rss/" + encodeURIComponent(encodeURIComponent(url));
+  document.location.href = "#/rss/" + encodeURIComponent(encodeURIComponent(q));
 };
 
 App.prototype.removeFeed = function(feed) {
@@ -78,14 +78,14 @@ function RssAdder(app) {
   Cls.prototype = {
     save: function() {
       try {
-        app.addFeed(this.url, this.name);
+        app.addFeed(this.q);
       } catch(e) {
         this.validationError = e;
       }
     },
     type: 'add-rss',
-    title: "Add a new RSS feed",
-    about: "enter any URL to add it to your megazine tabs"
+    title: "Search your links",
+    about: "enter any keyword to add it as a tab"
   };
   return Cls;
 };

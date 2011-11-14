@@ -303,7 +303,7 @@ HackerNews.prototype = common.mergeSettings(newsFunctions, {
 
 });
 
-var Locker = exports.Locker = function Locker() {}
+var Locker = exports.Locker = function Locker(route) {}
 Locker.prototype = common.mergeSettings(newsFunctions, {
   _super: newsFunctions,
   type: 'locker',
@@ -324,11 +324,16 @@ Locker.prototype = common.mergeSettings(newsFunctions, {
   processItem: function(item) {
     logging.debug("processing item: ",null, item);
 	if(item.link.indexOf("https://foursquare.com/") == 0) return; // they're just clutter here
+	var img = null;
+	if(item.embed && item.embed.type == 'photo') img = item.embed.url;
+	if(item.embed && item.embed.thumbnail_url) img = item.embed.thumbnail_url;
     this.processArticle({
       id: item.id,
       url: item.link,
       user: item.encounters[0].from,
-      text: item.title,
+      title: item.title,
+	  content: item.text,
+	  img: img,
       pointerURL: item.link
     });
   },
@@ -349,26 +354,27 @@ RSS.prototype = common.mergeSettings(newsFunctions, {
     this._super.reset.call(this);
   },
   loadNewItems: function() {
-    var rv = yql.query("select * from feednormalizer where url = @url and output='atom_1.0'", {
-      url: this.url
-    });
-    logging.info("RSS feed entries: ",null, rv);
-    this.about = "Latest articles from \"" + rv.results.feed.title + "\" on " + dow[new Date().getDay()];
-    var entries = rv.results.feed.entry;
-    if(!entries) throw new Error("No entries found for feed " + this.url);
-    return entries;
+    var date = new Date();
+    this.about = "My Links";
+    var links = http.json('/Me/links/search', {query: {q:this.url}});
+    links.forEach(function(link){link.id = link.link});
+    return links;
   },
 
   processItem: function(item) {
-    logging.debug("processing feed entry: ", null, item);
-    var content = null;
-    if(item.summary && item.summary.content) content = item.summary.content;
-    if(item.content && item.content.content) content = item.content.content;
+    logging.debug("processing item: ",null, item);
+	if(item.link.indexOf("https://foursquare.com/") == 0) return; // they're just clutter here
+	var img = null;
+	if(item.embed && item.embed.type == 'photo') img = item.embed.url;
+	if(item.embed && item.embed.thumbnail_url) img = item.embed.thumbnail_url;
     this.processArticle({
       id: item.id,
-      url: item.link.href,
+      url: item.link,
+      user: item.encounters[0].from,
       title: item.title,
-      content: content
+	  content: item.text,
+	  img: img,
+      pointerURL: item.link
     });
-  }
+  },
 });
